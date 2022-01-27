@@ -11,9 +11,10 @@ public class ApiResponseHandler {
         return apiResponse;
     }
 
-    public static ApiResponse generateFailureApiResponse(String message, int statusCode) {
+    public static ApiResponse generateFailureApiResponse(String message, int statusCode,Object data) {
         ApiResponse apiResponse=new ApiResponse();
         apiResponse.setMessage(message);
+        apiResponse.setData(data);
         apiResponse.setStatus(statusCode);
         return apiResponse;
     }

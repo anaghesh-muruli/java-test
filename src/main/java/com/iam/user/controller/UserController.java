@@ -1,7 +1,7 @@
 package com.iam.user.controller;
 
 import com.iam.user.dto.ApiResponse;
-import com.iam.user.dto.RegisterUserDto;
+import com.iam.user.dto.UserDto;
 import com.iam.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(value = "api/v1")
 public class UserController {
@@ -17,49 +19,35 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    Logger log = LoggerFactory.getLogger(this.getClass());
+    Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @PostMapping("/user")
-    public ResponseEntity<ApiResponse> addUser(@RequestBody RegisterUserDto registerUserModel) {
-        ApiResponse response = userService.saveUser(registerUserModel);
-        if(response.getStatus()==200) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
-        else {
-            log.debug("bad request");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+    public ResponseEntity<ApiResponse> addUser(@Valid @RequestBody UserDto registerUserModel) {
+        LOGGER.trace("User post Mapping invoked");
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(registerUserModel));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse> getUser(@PathVariable Integer userId) {
+        LOGGER.trace("User get Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
 
-    @GetMapping("/user")
+    @GetMapping("/users")
     public ResponseEntity<ApiResponse> getAllUsers() {
+        LOGGER.trace("User Get(All) Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
-    @PostMapping("/user/{identifier}")
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable String identifier, RegisterUserDto registerUserDto ) {
-        ApiResponse response = userService.updateUser(registerUserDto, identifier);
-        if(response.getStatus()==200) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+    @PutMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable Integer userId, @Valid UserDto registerUserDto ) {
+        LOGGER.trace("User Put Mapping invoked");
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(registerUserDto, userId));
     }
 
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer userId ) {
-        ApiResponse response = userService.deleteUser(userId);
-        if(response.getStatus()==200) {
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
+        LOGGER.trace("User delete Mapping invoked");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUser(userId));
     }
 }
