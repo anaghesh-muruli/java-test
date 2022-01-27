@@ -435,3 +435,7 @@ Caused by: java.lang.RuntimeException: Driver org.postgresql.Driver claims to no
 2022-01-28 00:20:42,247 INFO [main] c.i.u.s.UserService [UserService.java:90] User not found for the given userid
 2022-01-28 00:20:42,253 INFO [main] c.i.u.s.UserService [UserService.java:77] User not found for the given userid
 2022-01-28 00:20:42,256 INFO [main] c.i.u.s.UserService [UserService.java:104] User not found for the given userid
+2022-01-28 00:30:40,974 INFO [main] c.i.u.s.UserService [UserService.java:132] User not found for the given userid
+2022-01-28 00:30:40,986 INFO [main] c.i.u.s.UserService [UserService.java:90] User not found for the given userid
+2022-01-28 00:30:40,992 INFO [main] c.i.u.s.UserService [UserService.java:77] User not found for the given userid
+2022-01-28 00:30:40,997 INFO [main] c.i.u.s.UserService [UserService.java:104] User not found for the given userid
