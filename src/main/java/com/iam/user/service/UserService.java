@@ -15,27 +15,45 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.iam.user.constants.Constant.*;
+import static com.iam.user.constants.ErrorCode.*;
 
 @Service
-@Transactional
 public class UserService implements IUserService {
 
+    final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private UserRepository userRepository;
 
-    final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * This method saves the user into the repository
+     *
+     * @param  registerUserDto
+     * @return ApiResponse
+     * @throws UserAlreadyRegisteredException if user already present
+     */
     @Override
     public ApiResponse saveUser(UserDto registerUserDto) throws UserAlreadyRegisteredException {
 
-        if(isUserAlreadyPresent(registerUserDto.getEmail(), registerUserDto.getPhoneNumber())) {
-            LOGGER.debug("User already registered.");
-            throw new UserAlreadyRegisteredException("601", "User already registered");
+        Map<String, Boolean> userRegistrationStatus = isUserAlreadyPresent(registerUserDto.getEmail(), registerUserDto.getPhoneNumber());
+
+        LOGGER.debug("user registration status: "+ userRegistrationStatus);
+        if (Boolean.TRUE.equals(userRegistrationStatus.get(EMAIL_FIELD))) {
+            LOGGER.debug(String.format(EMAIL_ALREADY_PRESENT,registerUserDto.getEmail()));
+            throw new UserAlreadyRegisteredException(ERROR_EMAIL_ALREADY_PRESENT, String.format(EMAIL_ALREADY_PRESENT,registerUserDto.getEmail()));
         }
+
+        if (Boolean.TRUE.equals(userRegistrationStatus.get(PHONE_NUMBER_FIELD))) {
+            LOGGER.debug(String.format(PHONE_NUMBER_ALREADY_PRESENT,registerUserDto.getPhoneNumber()));
+            throw new UserAlreadyRegisteredException(ERROR_PHONE_ALREADY_PRESENT,  String.format(PHONE_NUMBER_ALREADY_PRESENT,registerUserDto.getPhoneNumber()));
+        }
+
         User user = new User();
         user.setFirstName(registerUserDto.getFirstName());
         user.setLastName(registerUserDto.getLastName());
@@ -43,83 +61,94 @@ public class UserService implements IUserService {
         user.setPhoneNumber(registerUserDto.getPhoneNumber());
 
         try {
-            user  = userRepository.save(user);
-        }
-        catch (Exception exception) {
-            LOGGER.debug("Saving to DB failed, " + exception.getMessage());
+            LOGGER.info("Saving user to repository");
+            user = userRepository.save(user);
+        } catch (Exception exception) {
+            //Logging and rethrowing it because it's a single threaded application
+            LOGGER.debug(String.format(USER_FAILED_TO_SAVE, exception.getMessage()));
             throw new UserManagementException(FAILED_TO_CREATE_RESOURCE, exception.getMessage());
         }
         return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.OK.value());
 
     }
 
-    private boolean isUserAlreadyPresent(String email, String phoneNumber) {
-        Optional<User> userDbEmail = this.userRepository.findByEmail(email);
-        Optional<User> userDbPhone = this.userRepository.findByPhoneNumber(phoneNumber);
-        return userDbPhone.isPresent() || userDbEmail.isPresent();
-    }
-
+    /**
+     * This method retrieves all the user from the repository
+     * @return ApiResponse
+     */
     @Override
     public ApiResponse getAllUsers() {
-        List<User> users =  userRepository.findAll();
+        LOGGER.info("Retrieving all users from repository");
+        List<User> users = userRepository.findAll();
         return ApiResponseHandler.generateSuccessApiResponse(users, HttpStatus.OK.value());
     }
 
+    /**
+     * This method retrieves a particular user by id
+     * @return ApiResponse
+     * @param  id
+     */
     @Override
     public ApiResponse getUserById(Integer id) {
         Optional<User> userDb = this.userRepository.findById(id);
-        if(userDb.isPresent()) {
+        if (userDb.isPresent()) {
+            LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
             User user = userDb.get();
-
             return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.OK.value());
-        }
-        else {
-            LOGGER.info("User not found for the given userid");
-            throw new UserNotFoundException(INVALID_USER, INVALID_USER);
+        } else {
+            LOGGER.info(USER_NOT_FOUND);
+            throw new UserNotFoundException(ERROR_USER_NOT_FOUND, USER_NOT_FOUND);
         }
     }
 
+    /**
+     * This method retrieves a particular by email
+     * @return ApiResponse
+     * @param  email
+     */
     @Override
     public ApiResponse getUserByEmail(String email) {
         Optional<User> userDb = this.userRepository.findByEmail(email);
-        if(userDb.isPresent()) {
+        if (userDb.isPresent()) {
+            LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
             User user = userDb.get();
             return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.OK.value());
-        }
-        else {
-            LOGGER.info("User not found for the given userid");
-            throw new UserNotFoundException(INVALID_USER, INVALID_USER);
+        } else {
+            LOGGER.info(USER_NOT_FOUND);
+            throw new UserNotFoundException(ERROR_USER_NOT_FOUND, USER_NOT_FOUND);
         }
     }
 
+    /**
+     * This method deletes the user by id
+     * @return ApiResponse
+     * @param  id
+     */
     @Override
     public ApiResponse deleteUser(Integer id) {
         Optional<User> userDb = this.userRepository.findById(id);
-        if(userDb.isPresent()) {
+        if (userDb.isPresent()) {
+            LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
             User user = userDb.get();
             this.userRepository.delete(userDb.get());
             return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.NO_CONTENT.value());
-        }
-        else {
-            LOGGER.info("User not found for the given userid");
-            throw new UserNotFoundException(INVALID_USER, INVALID_USER);
+        } else {
+            LOGGER.info(USER_NOT_FOUND);
+            throw new UserNotFoundException(ERROR_USER_NOT_FOUND, USER_NOT_FOUND);
         }
     }
 
+    /**
+     * This method updates the user
+     * @return ApiResponse
+     * @param  registerUserDto
+     * @param  userId
+     */
+    public ApiResponse updateUser(UserDto registerUserDto, int userId) {
 
-    public ApiResponse updateUser(UserDto registerUserDto, int userId){
-//        Optional<User> userDb = Optional.empty();
-//        if(identifier.matches(".+@.+\\..+")) {
-//             userDb = this.userRepository.findByEmail(identifier);
-//        }
-//        else if(identifier.matches("[0-9]+")) {
-//            userDb = this.userRepository.findByPhoneNumber(identifier);
-//        }
-//        else {
-//            throw new UserManagementException(INVALID_IDENTIFIER, HttpStatus.BAD_REQUEST.toString());
-//        }
         Optional<User> userDb = this.userRepository.findById(userId);
-        if(userDb.isPresent()) {
+        if (userDb.isPresent()) {
+            LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
             User user = userDb.get();
             user.setPhoneNumber(registerUserDto.getPhoneNumber());
             user.setEmail(registerUserDto.getEmail());
@@ -127,10 +156,24 @@ public class UserService implements IUserService {
             user.setLastName(registerUserDto.getLastName());
             user = userRepository.save(user);
             return ApiResponseHandler.generateSuccessApiResponse(user, 200);
+        } else {
+            LOGGER.info(USER_NOT_FOUND);
+            throw new UserNotFoundException(ERROR_USER_NOT_FOUND, USER_NOT_FOUND);
         }
-        else {
-            LOGGER.info("User not found for the given userid");
-            throw new UserNotFoundException(INVALID_USER, INVALID_USER);
-        }
+    }
+
+    /**
+     * This method checks if the user is already present
+     * @return Map<String, Boolean>
+     * @param  email
+     * @param  phoneNumber
+     */
+    private Map<String, Boolean> isUserAlreadyPresent(String email, String phoneNumber) {
+        Optional<User> userDbEmail = this.userRepository.findByEmail(email);
+        Optional<User> userDbPhone = this.userRepository.findByPhoneNumber(phoneNumber);
+        Map<String, Boolean> userStatus = new HashMap<>();
+        userStatus.put(EMAIL_FIELD, userDbEmail.isPresent());
+        userStatus.put(PHONE_NUMBER_FIELD, userDbPhone.isPresent());
+        return userStatus;
     }
 }

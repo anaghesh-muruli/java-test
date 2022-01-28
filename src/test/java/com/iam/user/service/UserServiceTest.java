@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static com.iam.user.constants.Constant.*;
+import static com.iam.user.constants.ErrorCode.ERROR_USER_NOT_FOUND;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,12 +41,12 @@ class UserServiceTest {
     @AfterEach
     void tearDown() {
         userDto = null;
-        user = null;
+        user = Optional.empty();
     }
 
     @Test
-    @DisplayName("save user for given user already exists ")
-    void saveUserForGivenUSerAlreadyExists() {
+    @DisplayName("Save user - should throw UserAlreadyRegisteredException if user is already present")
+    void saveUserThrowsExceptionForGivenUSerAlreadyExists() {
         when(userRepository.findByEmail(anyString())).thenReturn(user);
         when(userRepository.findByPhoneNumber(anyString())).thenReturn(user);
 
@@ -59,12 +60,12 @@ class UserServiceTest {
         assertNotNull(ex.getErrorCode());
 
         assertEquals("601", ex.getErrorCode());
-        assertEquals("User already registered", ex.getErrorMessage());
+        assertEquals("User already registered with the email id: a@b.com", ex.getErrorMessage());
     }
 
     @Test
-    @DisplayName("save a new user")
-    void saveUser() {
+    @DisplayName("Save user - should save when valid data is given ")
+    void saveUserShouldCreateEntry() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByPhoneNumber(anyString())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user.get());
@@ -83,11 +84,11 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("save user throws exception ")
+    @DisplayName("Save user throws exception ")
     void saveUserThrowsSomeException() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByPhoneNumber(anyString())).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("server down"));
+        when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Save operation failed"));
 
         UserManagementException ex = assertThrows(UserManagementException.class, () -> userService.saveUser(userDto));
 
@@ -99,12 +100,12 @@ class UserServiceTest {
         assertNotNull(ex.getErrorCode());
 
         assertEquals(FAILED_TO_CREATE_RESOURCE, ex.getErrorCode());
-        assertEquals("server down", ex.getErrorMessage());
+        assertEquals("Save operation failed", ex.getErrorMessage());
     }
 
     @Test
-    @DisplayName("get all users")
-    void getAllUsers() {
+    @DisplayName("Get all - should return list of users")
+    void getAllUsersReturnsListOfUsers() {
         when(userRepository.findAll()).thenReturn(new ArrayList<User>(Collections.singleton(user.get())));
 
         ApiResponse response = userService.getAllUsers();
@@ -119,8 +120,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("get user by id")
-    void getUserById() {
+    @DisplayName("Get user should return a user")
+    void getUserByIdShouldReturnUser() {
         when(userRepository.findById(anyInt())).thenReturn(user);
 
         ApiResponse response = userService.getUserById(1);
@@ -136,7 +137,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("get user by id returns empty")
+    @DisplayName("Get user by id returns empty when user not present")
     void getUserByIdWhenReturnsEmpty() {
         when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
@@ -148,13 +149,13 @@ class UserServiceTest {
         assertNotNull(ex.getErrorMessage());
         assertNotNull(ex.getErrorCode());
 
-        assertEquals(INVALID_USER, ex.getErrorCode());
-        assertEquals(INVALID_USER, ex.getErrorMessage());
+        assertEquals(ERROR_USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals(USER_NOT_FOUND, ex.getErrorMessage());
     }
 
     @Test
-    @DisplayName("get user by email")
-    void getUserByEmail() {
+    @DisplayName("get user by email should return user")
+    void getUserByEmailShouldReturnUser() {
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
         ApiResponse response = userService.getUserByEmail("a@b.com");
@@ -169,7 +170,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("get User By Email When Return EmptyUser")
+    @DisplayName("get User By Email should Return EmptyUser")
     void getUserByEmailWhenReturnEmptyUser() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
@@ -181,13 +182,13 @@ class UserServiceTest {
         assertNotNull(ex.getErrorMessage());
         assertNotNull(ex.getErrorCode());
 
-        assertEquals(INVALID_USER, ex.getErrorCode());
-        assertEquals(INVALID_USER, ex.getErrorMessage());
+        assertEquals(ERROR_USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals(USER_NOT_FOUND, ex.getErrorMessage());
     }
 
 
     @Test
-    @DisplayName("delete a user")
+    @DisplayName("delete a user when user is present")
     void deleteUser() {
         when(userRepository.findById(anyInt())).thenReturn(user);
 
@@ -215,13 +216,13 @@ class UserServiceTest {
         assertNotNull(ex.getErrorMessage());
         assertNotNull(ex.getErrorCode());
 
-        assertEquals(INVALID_USER, ex.getErrorCode());
-        assertEquals(INVALID_USER, ex.getErrorMessage());
+        assertEquals(ERROR_USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals(USER_NOT_FOUND, ex.getErrorMessage());
     }
 
     @Test
     @DisplayName("update a user")
-    void updateUser1() {
+    void updateUserShouldUpdateWhenValidInput() {
         when(userRepository.save(any(User.class))).thenReturn(user.get());
         when(userRepository.findById(anyInt())).thenReturn(user);
         ApiResponse response = userService.updateUser(userDto, 1);
@@ -243,7 +244,7 @@ class UserServiceTest {
         assertNotNull(ex.getErrorMessage());
         assertNotNull(ex.getErrorCode());
 
-        assertEquals(INVALID_USER, ex.getErrorCode());
-        assertEquals(INVALID_USER, ex.getErrorMessage());
+        assertEquals(ERROR_USER_NOT_FOUND, ex.getErrorCode());
+        assertEquals(USER_NOT_FOUND, ex.getErrorMessage());
     }
 }

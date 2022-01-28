@@ -6,6 +6,7 @@ import com.iam.user.dto.UserDto;
 import com.iam.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +30,6 @@ class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
-    private MockMvc mockMvc;
-
     private UserDto userDto;
     private ApiResponse apiResponse;
 
@@ -45,6 +44,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("update a user for given input user is empty")
     void addUserForGivenStatusIsCreated() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.CREATED.value());
 
@@ -63,6 +63,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("update a user for given input user is empty")
     void getUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 
@@ -81,6 +82,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("update a user for given input user is empty")
     void getAllUsers() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 
@@ -99,6 +101,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("update a user for given input user is empty")
     void updateUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.CREATED.value());
 
@@ -117,6 +120,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("update a user for given input user is empty")
     void deleteUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 

@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +18,4 @@ public class ErrorResponse {
     private String error;
     private String details;
     private int errorCode;
-    private String expressionKey;
 }

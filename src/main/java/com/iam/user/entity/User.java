@@ -1,11 +1,7 @@
 package com.iam.user.entity;
 
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
-
 import javax.persistence.*;
-import javax.validation.constraints.*;
-
 @Getter
 @Setter
 @NoArgsConstructor

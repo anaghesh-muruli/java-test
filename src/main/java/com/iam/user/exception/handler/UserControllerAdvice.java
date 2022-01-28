@@ -17,16 +17,29 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.util.*;
 
+import static com.iam.user.constants.Constant.ROOT_CAUSE;
+
 @ControllerAdvice
 public class UserControllerAdvice {
 
     Logger LOGGER = LoggerFactory.getLogger(UserControllerAdvice.class);
 
+    private ResponseEntity<Object> createExceptionResponse(Date date, String errorMessage,
+                                                           String details, HttpStatus statusCode) {
+        ErrorResponse exceptionResponse = ErrorResponse.builder()
+                .timestamp(date)
+                .error(errorMessage)
+                .details(details)
+                .errorCode(statusCode.value())
+                .build();
+        return new ResponseEntity<>(exceptionResponse, statusCode);
+    }
+
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
 
       Throwable rootCause = getRootCause(ex);
-      LOGGER.debug("General Exception Handler. Root cause: "+rootCause.toString());
+      LOGGER.debug(String.format(ROOT_CAUSE,"All Exception handler",rootCause.toString()));
       return createExceptionResponse(new Date(), ex.toString(), request.getDescription(false), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -34,7 +47,7 @@ public class UserControllerAdvice {
     public ResponseEntity<Object> handleMethodArgumentNotValid(BindException ex) {
 
         Throwable rootCause = getRootCause(ex);
-        LOGGER.debug("BindException Handler. Root cause: "+rootCause.toString());
+        LOGGER.debug(String.format(ROOT_CAUSE,"BindException handler",rootCause.toString()));
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) ->{
 
@@ -48,33 +61,25 @@ public class UserControllerAdvice {
     @ExceptionHandler(UserAlreadyRegisteredException.class)
     public ResponseEntity<Object> handleUserRegisteredException(final UserAlreadyRegisteredException ex, WebRequest request) {
         Throwable rootCause = getRootCause(ex);
-        LOGGER.debug("UserAlreadyRegisteredException Handler. Root cause: "+rootCause.toString());
+        LOGGER.debug(String.format(ROOT_CAUSE,"UserAlreadyRegisteredException handler",rootCause.toString()));
         return createExceptionResponse(new Date(), ex.getErrorMessage(), request.getDescription(false), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(final UserNotFoundException ex, WebRequest request) {
         Throwable rootCause = getRootCause(ex);
-        LOGGER.debug("UserAlreadyRegisteredException Handler. Root cause: "+rootCause.toString());
-        return createExceptionResponse(new Date(), ex.getErrorMessage(), request.getDescription(false), HttpStatus.NOT_FOUND);
+        LOGGER.debug(String.format(ROOT_CAUSE,"UserNotFoundException handler",rootCause.toString()));
+        return createExceptionResponse(new Date(), ex.getErrorMessage(), request.getDescription(false), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserManagementException.class)
-    public ResponseEntity<Object> handleUserRegisteredException(final UserManagementException ex, WebRequest request) {
+    public ResponseEntity<Object> handleUserManagementException(final UserManagementException ex, WebRequest request) {
         Throwable rootCause = getRootCause(ex);
-        LOGGER.debug("UserAlreadyRegisteredException Handler. Root cause: "+rootCause.toString());
+        LOGGER.debug(String.format(ROOT_CAUSE,"UserManagementException handler",rootCause.toString()));
         return createExceptionResponse(new Date(), ex.getErrorMessage(), request.getDescription(false), HttpStatus.NOT_FOUND);
     }
 
-    private ResponseEntity<Object> createExceptionResponse(Date date, String errorMessage,
-                                                           String details, HttpStatus statusCode) {
-        ErrorResponse exceptionResponse = ErrorResponse.builder()
-                .timestamp(date)
-                .error(errorMessage)
-                .details(details)
-                .build();
-        return new ResponseEntity<>(exceptionResponse, statusCode);
-    }
+
 
     private Throwable getRootCause(Throwable ex) {
         if(ex.getCause() == null) {

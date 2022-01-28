@@ -7,46 +7,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 
+/**
+ * REST endpoint for the user functionality
+ *
+ * @author Anaghesh Muruli
+ *
+ */
 @RestController
-@RequestMapping(value = "api/v1")
+@RequestMapping(value = "api/v1/users")
+@Validated
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @PostMapping("/user")
-    public ResponseEntity<ApiResponse> addUser(@Valid @RequestBody UserDto registerUserModel) {
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse> addUser(@Valid @RequestBody UserDto registerUserDto){
         LOGGER.trace("User post Mapping invoked");
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(registerUserModel));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(registerUserDto));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUser(@PathVariable Integer userId) {
+    @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse> getUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId){
         LOGGER.trace("User get Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<ApiResponse> getAllUsers() {
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse> getAllUsers(){
         LOGGER.trace("User Get(All) Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
-    @PutMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable Integer userId, @Valid UserDto registerUserDto ) {
+    @PutMapping(value ="/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId , @Valid @RequestBody UserDto registerUserDto ){
         LOGGER.trace("User Put Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(registerUserDto, userId));
     }
 
-    @DeleteMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer userId ) {
+    @DeleteMapping(value ="/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId ) {
         LOGGER.trace("User delete Mapping invoked");
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUser(userId));
     }

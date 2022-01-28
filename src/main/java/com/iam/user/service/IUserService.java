@@ -3,6 +3,9 @@ package com.iam.user.service;
 import com.iam.user.dto.ApiResponse;
 import com.iam.user.dto.UserDto;
 
+/**
+ *
+ */
 public interface IUserService {
 
     ApiResponse getAllUsers();
