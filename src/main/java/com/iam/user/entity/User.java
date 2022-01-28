@@ -2,6 +2,12 @@ package com.iam.user.entity;
 
 import lombok.*;
 import javax.persistence.*;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static com.iam.user.constants.Constant.ID_MAX;
+import static com.iam.user.constants.Constant.ID_MIN;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,10 +18,8 @@ import javax.persistence.*;
 public class User extends UserAudit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "uid", nullable = false)
-    private int userId;
-
+    private long id = ThreadLocalRandom.current().nextLong(ID_MIN,ID_MAX);
 
     @Column(name = "first_name")
     private String firstName;

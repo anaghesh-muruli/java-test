@@ -19,5 +19,7 @@ public final class Constant {
     public static final String PHONE_NUMBER_ALREADY_PRESENT = "User already registered with the phone number: %s";
     public static final String USER_FAILED_TO_SAVE = "User save failed %s";
     public static final String GET_USER_FROM_REPOSITORY = "Retrieving user from repository";
+    public static final long ID_MIN = 100000000;
+    public static final long ID_MAX = 999999999;
 
 }

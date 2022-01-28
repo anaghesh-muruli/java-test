@@ -11,12 +11,14 @@ import com.iam.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,6 +40,7 @@ public class UserService implements IUserService {
      * @return ApiResponse
      * @throws UserAlreadyRegisteredException if user already present
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ApiResponse saveUser(UserDto registerUserDto) throws UserAlreadyRegisteredException {
 
@@ -72,16 +75,7 @@ public class UserService implements IUserService {
 
     }
 
-    /**
-     * This method retrieves all the user from the repository
-     * @return ApiResponse
-     */
-    @Override
-    public ApiResponse getAllUsers() {
-        LOGGER.info("Retrieving all users from repository");
-        List<User> users = userRepository.findAll();
-        return ApiResponseHandler.generateSuccessApiResponse(users, HttpStatus.OK.value());
-    }
+
 
     /**
      * This method retrieves a particular user by id
@@ -89,7 +83,7 @@ public class UserService implements IUserService {
      * @param  id
      */
     @Override
-    public ApiResponse getUserById(Integer id) {
+    public ApiResponse getUserById(long id) {
         Optional<User> userDb = this.userRepository.findById(id);
         if (userDb.isPresent()) {
             LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
@@ -125,7 +119,7 @@ public class UserService implements IUserService {
      * @param  id
      */
     @Override
-    public ApiResponse deleteUser(Integer id) {
+    public ApiResponse deleteUser(long id) {
         Optional<User> userDb = this.userRepository.findById(id);
         if (userDb.isPresent()) {
             LOGGER.info(String.format(GET_USER_FROM_REPOSITORY));
@@ -144,7 +138,7 @@ public class UserService implements IUserService {
      * @param  registerUserDto
      * @param  userId
      */
-    public ApiResponse updateUser(UserDto registerUserDto, int userId) {
+    public ApiResponse updateUser(UserDto registerUserDto, long userId) {
 
         Optional<User> userDb = this.userRepository.findById(userId);
         if (userDb.isPresent()) {
@@ -155,7 +149,7 @@ public class UserService implements IUserService {
             user.setFirstName(registerUserDto.getFirstName());
             user.setLastName(registerUserDto.getLastName());
             user = userRepository.save(user);
-            return ApiResponseHandler.generateSuccessApiResponse(user, 200);
+            return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.OK.value());
         } else {
             LOGGER.info(USER_NOT_FOUND);
             throw new UserNotFoundException(ERROR_USER_NOT_FOUND, USER_NOT_FOUND);
@@ -175,5 +169,25 @@ public class UserService implements IUserService {
         userStatus.put(EMAIL_FIELD, userDbEmail.isPresent());
         userStatus.put(PHONE_NUMBER_FIELD, userDbPhone.isPresent());
         return userStatus;
+    }
+
+    /**
+     * This method retrieves all the user from the repository
+     * @return ApiResponse
+     */
+    @Override
+    public ApiResponse getAllUsers(Integer offset, Integer pageSize, String field){
+        if(field == null || field.trim().isEmpty()) {
+            field = "id";
+        }
+        LOGGER.info("Retrieving all users from repository");
+        Page<User> users = userRepository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(field)));
+
+        Map<String, Object> userPaged = new HashMap<>();
+        userPaged.put("Total elements",users.getTotalElements());
+        userPaged.put("Total Pages",users.getTotalPages());
+        userPaged.put("Content",users.getContent());
+
+        return ApiResponseHandler.generateSuccessApiResponse(userPaged,HttpStatus.OK.value());
     }
 }

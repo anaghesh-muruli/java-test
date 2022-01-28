@@ -15,10 +15,12 @@ import static com.iam.user.constants.Constant.*;
 import static com.iam.user.constants.ErrorCode.ERROR_USER_NOT_FOUND;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -85,7 +87,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("Save user throws exception ")
-    void saveUserThrowsSomeException() {
+    void saveUserThrowsUserManagementException() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByPhoneNumber(anyString())).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Save operation failed"));
@@ -106,11 +108,9 @@ class UserServiceTest {
     @Test
     @DisplayName("Get all - should return list of users")
     void getAllUsersReturnsListOfUsers() {
-        when(userRepository.findAll()).thenReturn(new ArrayList<User>(Collections.singleton(user.get())));
-
-        ApiResponse response = userService.getAllUsers();
-
-        verify(userRepository).findAll();
+        when(userRepository.findAll(PageRequest.of(1, 1).withSort(Sort.by("id")))).thenReturn((new PageImpl<User>(new ArrayList<User>())));
+        ApiResponse response = userService.getAllUsers(1,1,"id");
+        verify(userRepository).findAll(PageRequest.of(1, 1).withSort(Sort.by("id")));
 
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -122,11 +122,11 @@ class UserServiceTest {
     @Test
     @DisplayName("Get user should return a user")
     void getUserByIdShouldReturnUser() {
-        when(userRepository.findById(anyInt())).thenReturn(user);
+        when(userRepository.findById(anyLong())).thenReturn(user);
 
         ApiResponse response = userService.getUserById(1);
 
-        verify(userRepository).findById(anyInt());
+        verify(userRepository).findById(anyLong());
 
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -139,11 +139,11 @@ class UserServiceTest {
     @Test
     @DisplayName("Get user by id returns empty when user not present")
     void getUserByIdWhenReturnsEmpty() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.getUserById(1));
 
-        verify(userRepository).findById(anyInt());
+        verify(userRepository).findById(anyLong());
 
         assertNotNull(ex);
         assertNotNull(ex.getErrorMessage());
@@ -190,11 +190,11 @@ class UserServiceTest {
     @Test
     @DisplayName("delete a user when user is present")
     void deleteUser() {
-        when(userRepository.findById(anyInt())).thenReturn(user);
+        when(userRepository.findById(anyLong())).thenReturn(user);
 
         ApiResponse response = userService.deleteUser(1);
 
-        verify(userRepository).findById(anyInt());
+        verify(userRepository).findById(anyLong());
 
         assertNotNull(response);
         assertNotNull(response.getData());
@@ -206,11 +206,11 @@ class UserServiceTest {
     @Test
     @DisplayName("delete user returns empty user")
     void deleteUserReturnEmptyUser() {
-        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.deleteUser(1));
 
-        verify(userRepository).findById(anyInt());
+        verify(userRepository).findById(anyLong());
 
         assertNotNull(ex);
         assertNotNull(ex.getErrorMessage());
@@ -224,7 +224,7 @@ class UserServiceTest {
     @DisplayName("update a user")
     void updateUserShouldUpdateWhenValidInput() {
         when(userRepository.save(any(User.class))).thenReturn(user.get());
-        when(userRepository.findById(anyInt())).thenReturn(user);
+        when(userRepository.findById(anyLong())).thenReturn(user);
         ApiResponse response = userService.updateUser(userDto, 1);
 
         assertNotNull(response);

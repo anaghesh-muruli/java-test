@@ -37,25 +37,27 @@ public class UserController {
     }
 
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse> getUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId){
+    public ResponseEntity<ApiResponse> getUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) long userId){
         LOGGER.trace("User get Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse> getAllUsers(){
+    public ResponseEntity<ApiResponse> getAllUsers(@RequestParam(name="offset", required=false)
+                                                                                     Integer offset, @RequestParam(name="pageSize", required=false) Integer pageSize,
+                                                                         @RequestParam(name="field", required=false) String field){
         LOGGER.trace("User Get(All) Mapping invoked");
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers(offset, pageSize, field));
     }
 
     @PutMapping(value ="/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId , @Valid @RequestBody UserDto registerUserDto ){
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) long userId , @Valid @RequestBody UserDto registerUserDto ){
         LOGGER.trace("User Put Mapping invoked");
         return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(registerUserDto, userId));
     }
 
     @DeleteMapping(value ="/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) int userId ) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userId") @Digits(integer = 10, fraction = 0) long userId ) {
         LOGGER.trace("User delete Mapping invoked");
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUser(userId));
     }

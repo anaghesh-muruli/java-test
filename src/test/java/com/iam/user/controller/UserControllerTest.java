@@ -67,11 +67,11 @@ class UserControllerTest {
     void getUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 
-        when(userService.getUserById(anyInt())).thenReturn(apiResponse);
+        when(userService.getUserById(anyLong())).thenReturn(apiResponse);
 
         ResponseEntity<ApiResponse> response = userController.getUser(1);
 
-        verify(userService).getUserById(anyInt());
+        verify(userService).getUserById(anyLong());
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -86,11 +86,11 @@ class UserControllerTest {
     void getAllUsers() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 
-        when(userService.getAllUsers()).thenReturn(apiResponse);
+        when(userService.getAllUsers(1,1,"id")).thenReturn(apiResponse);
 
-        ResponseEntity<ApiResponse> response = userController.getAllUsers();
+        ResponseEntity<ApiResponse> response = userController.getAllUsers(1,1,"id");
 
-        verify(userService).getAllUsers();
+        verify(userService).getAllUsers(1,1,"id");
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -105,11 +105,11 @@ class UserControllerTest {
     void updateUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.CREATED.value());
 
-        when(userService.updateUser(any(UserDto.class), anyInt())).thenReturn(apiResponse);
+        when(userService.updateUser(any(UserDto.class), anyLong())).thenReturn(apiResponse);
 
         ResponseEntity<ApiResponse> response = userController.updateUser(1, userDto);
 
-        verify(userService).updateUser(any(UserDto.class), anyInt());
+        verify(userService).updateUser(any(UserDto.class), anyLong());
 
         assertNotNull(response);
         assertNotNull(response.getBody());
@@ -124,11 +124,11 @@ class UserControllerTest {
     void deleteUser() {
         apiResponse = ApiResponseHandler.generateSuccessApiResponse(userDto, HttpStatus.OK.value());
 
-        when(userService.deleteUser(anyInt())).thenReturn(apiResponse);
+        when(userService.deleteUser(anyLong())).thenReturn(apiResponse);
 
         ResponseEntity<ApiResponse> response = userController.deleteUser(1);
 
-        verify(userService).deleteUser(anyInt());
+        verify(userService).deleteUser(anyLong());
 
         assertNotNull(response);
         assertNotNull(response.getBody());

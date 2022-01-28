@@ -12,14 +12,19 @@
 	<artifactId>user</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>user</name>
-	<description>User CRUD operations</description>
+	<description>User Management Microservice</description>
 	<properties>
 		<java.version>11</java.version>
-		<sonar.organization>anagheshm</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<dependencies>
+		<!-- Swagger UI -->
+		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
