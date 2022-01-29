@@ -2,6 +2,7 @@ package com.iam.user.controller;
 
 import com.iam.user.dto.ApiResponse;
 import com.iam.user.dto.UserDto;
+import com.iam.user.service.IUserService;
 import com.iam.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import javax.validation.constraints.Digits;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 

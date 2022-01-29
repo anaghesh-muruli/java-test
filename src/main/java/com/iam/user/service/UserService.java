@@ -138,6 +138,7 @@ public class UserService implements IUserService {
      * @param  registerUserDto
      * @param  userId
      */
+    @Override
     public ApiResponse updateUser(UserDto registerUserDto, long userId) {
 
         Optional<User> userDb = this.userRepository.findById(userId);
@@ -148,7 +149,14 @@ public class UserService implements IUserService {
             user.setEmail(registerUserDto.getEmail());
             user.setFirstName(registerUserDto.getFirstName());
             user.setLastName(registerUserDto.getLastName());
-            user = userRepository.save(user);
+            try {
+                LOGGER.info("Saving user to repository");
+                user = userRepository.save(user);
+            } catch (Exception exception) {
+                //Logging and rethrowing it because it's a single threaded application
+                LOGGER.debug(String.format(USER_FAILED_TO_SAVE, exception.getMessage()));
+                throw new UserManagementException(FAILED_TO_CREATE_RESOURCE, exception.getMessage());
+            }
             return ApiResponseHandler.generateSuccessApiResponse(user, HttpStatus.OK.value());
         } else {
             LOGGER.info(USER_NOT_FOUND);

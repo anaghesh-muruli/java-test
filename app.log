@@ -92,3 +92,14 @@
 2022-01-29 02:43:48,892 INFO [main] c.i.u.s.UserService [UserService.java:130] User not found
 2022-01-29 02:43:48,901 INFO [main] c.i.u.s.UserService [UserService.java:125] Retrieving user from repository
 2022-01-29 02:43:48,914 INFO [main] c.i.u.s.UserService [UserService.java:183] Retrieving all users from repository
+2022-01-29 10:49:16,692 INFO [main] c.i.u.s.UserService [UserService.java:155] User not found
+2022-01-29 10:49:16,708 INFO [main] c.i.u.s.UserService [UserService.java:89] Retrieving user from repository
+2022-01-29 10:49:16,708 INFO [main] c.i.u.s.UserService [UserService.java:111] User not found
+2022-01-29 10:49:16,708 INFO [main] c.i.u.s.UserService [UserService.java:67] Saving user to repository
+2022-01-29 10:49:16,724 INFO [main] c.i.u.s.UserService [UserService.java:107] Retrieving user from repository
+2022-01-29 10:49:16,724 INFO [main] c.i.u.s.UserService [UserService.java:93] User not found
+2022-01-29 10:49:16,724 INFO [main] c.i.u.s.UserService [UserService.java:146] Retrieving user from repository
+2022-01-29 10:49:16,724 INFO [main] c.i.u.s.UserService [UserService.java:67] Saving user to repository
+2022-01-29 10:49:16,724 INFO [main] c.i.u.s.UserService [UserService.java:130] User not found
+2022-01-29 10:49:16,739 INFO [main] c.i.u.s.UserService [UserService.java:125] Retrieving user from repository
+2022-01-29 10:49:16,755 INFO [main] c.i.u.s.UserService [UserService.java:184] Retrieving all users from repository

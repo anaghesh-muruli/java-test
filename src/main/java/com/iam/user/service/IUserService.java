@@ -16,5 +16,7 @@ public interface IUserService {
 
     ApiResponse deleteUser(long id);
 
+    ApiResponse updateUser(UserDto registerUserDto, long userId);
+
     ApiResponse getAllUsers(Integer offset, Integer pageSize, String field);
 }
